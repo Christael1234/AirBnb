@@ -152,22 +152,92 @@ function updateTicketSummary(){
 }
 updateTicketSummary();
 
+// Calls a Supabase Edge Function (see supabase/functions/).
+async function callRaffleFunction(name, body){
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY},
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if(!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+  return data;
+}
+
+function showTicketStatus(title, text){
+  document.getElementById('ticketConfirmBox').classList.add('show');
+  document.getElementById('ticketConfirmTitle').textContent = title;
+  document.getElementById('ticketConfirmText').textContent = text;
+}
+
+// ---------- RAFFLE: STEP 1, VALIDATE AND REVIEW ----------
 function buyRaffleTickets(){
   const name = document.getElementById('ticketName').value.trim();
   const email = document.getElementById('ticketEmail').value.trim();
   const phone = document.getElementById('ticketPhone').value.trim();
   const qty = parseInt(document.getElementById('ticketQty').value, 10) || 1;
-  if(!name || !email || !phone){
-    alert('Please fill in your name, email, and phone number before paying.');
+  document.getElementById('ticketFormError').textContent = '';
+
+  if(!name) return formError('ticketFormError', 'ticketName', 'Please enter your full name.');
+  if(!isValidEmail(email)) return formError('ticketFormError', 'ticketEmail', 'Please enter a valid email address.');
+  if(!isValidPhone(phone)) return formError('ticketFormError', 'ticketPhone', 'Please enter a valid phone number.');
+
+  document.getElementById('ocName').textContent = name;
+  document.getElementById('ocEmail').textContent = email;
+  document.getElementById('ocPhone').textContent = phone;
+  document.getElementById('ocQty').textContent = `${qty} × ₦${TICKET_PRICE.toLocaleString()}`;
+  document.getElementById('ocTotal').textContent = '₦' + (qty * TICKET_PRICE).toLocaleString();
+  document.getElementById('ocError').textContent = '';
+
+  const agree = document.getElementById('ocAgree');
+  const confirmBtn = document.getElementById('ocConfirmBtn');
+  agree.checked = false;
+  setLoading(confirmBtn, false);
+  confirmBtn.disabled = true; // until the eligibility box is ticked
+  agree.onchange = () => { confirmBtn.disabled = !agree.checked; };
+
+  const cancel = () => closeModal('orderConfirm');
+  document.getElementById('ocCancelBtn').onclick = cancel;
+  confirmBtn.onclick = () => startTicketPayment({name, email, phone, qty});
+  openModal('orderConfirm', cancel);
+}
+
+// ---------- RAFFLE: STEP 2, CREATE ORDER AND PAY ----------
+async function startTicketPayment({name, email, phone, qty}){
+  const confirmBtn = document.getElementById('ocConfirmBtn');
+  const payBtn = document.getElementById('ticketPayBtn');
+  setLoading(confirmBtn, true);
+  payBtn.disabled = true;
+
+  let order;
+  try {
+    // The server creates the order and sets the amount, so it can't be tampered with.
+    order = await callRaffleFunction('create-ticket-order', {name, email, phone, quantity: qty});
+  } catch(err){
+    setLoading(confirmBtn, false);
+    payBtn.disabled = false;
+    document.getElementById('ocError').textContent = err.message;
     return;
   }
-  const amount = qty * TICKET_PRICE;
-  const txRef = 'RAFFLE-' + Date.now() + '-' + Math.floor(Math.random()*100000);
+  closeModal('orderConfirm');
+  setLoading(confirmBtn, false);
 
+  const done = () => { payBtn.disabled = false; };
+
+  if(PAYMENT_MODE === 'simulate'){
+    openSimulatedCheckout(order, name, done);
+    return;
+  }
+
+  if(typeof FlutterwaveCheckout === 'undefined'){
+    done();
+    formError('ticketFormError', null, `Payment couldn't load. Check your connection and try again (order ${order.tx_ref}).`);
+    return;
+  }
   FlutterwaveCheckout({
-    public_key: 'FLWPUBK_TEST-xxxxxxxxxxxxxxxxxxxxxxxxxxxx-X', // replace with your live Flutterwave public key
-    tx_ref: txRef,
-    amount: amount,
+    public_key: FLUTTERWAVE_PUBLIC_KEY,
+    tx_ref: order.tx_ref,
+    amount: order.amount,
     currency: 'NGN',
     payment_options: 'card,ussd,banktransfer',
     customer: {
@@ -177,13 +247,114 @@ function buyRaffleTickets(){
     },
     customizations: {
       title: "The Real Mc'Coy Raffle",
-      description: qty + ' raffle ticket(s) — 10th Anniversary Draw',
+      description: order.quantity + ' raffle ticket(s) — 10th Anniversary Draw',
     },
-    callback: function(data){
-      document.getElementById('ticketConfirmBox').classList.add('show');
-      document.getElementById('ticketConfirmText').textContent =
-        `Reference ${data.tx_ref || data.transaction_id}. ${qty} ticket(s) for ${name} confirmed. A receipt has been sent to ${email}.`;
+    callback: async function(data){
+      setLoading(payBtn, true);
+      showTicketStatus('Confirming your payment…', `Reference ${order.tx_ref}. Please keep this page open.`);
+      try {
+        const result = await callRaffleFunction('verify-ticket-payment', {
+          tx_ref: order.tx_ref,
+          transaction_id: data.transaction_id,
+        });
+        showTicketSuccess(result, name, order);
+      } catch(err){
+        showTicketStatus('Payment received — confirmation pending',
+          `${err.message} Your reference is ${order.tx_ref}. If you were charged, your tickets will be issued automatically; contact us with this reference if you don't hear back.`);
+      } finally {
+        setLoading(payBtn, false);
+      }
     },
-    onclose: function(){},
+    onclose: done,
   });
+}
+
+// ---------- RAFFLE: STEP 3, SUCCESS ----------
+function showTicketSuccess(result, name, order){
+  const codes = result.tickets;
+  const MAX_SHOWN = 120;
+
+  document.getElementById('tsTitle').textContent = result.simulated ? 'Payment confirmed (simulated)' : 'Payment confirmed';
+  document.getElementById('tsLead').textContent =
+    `${codes.length} ticket${codes.length === 1 ? '' : 's'} issued to ${name}. Good luck in the draw!`;
+  document.getElementById('tsAmount').textContent = '₦' + Number(order.amount).toLocaleString();
+  document.getElementById('tsRef').textContent = order.tx_ref;
+
+  const shown = codes.slice(0, MAX_SHOWN);
+  const codesEl = document.getElementById('tsCodes');
+  codesEl.innerHTML = '';
+  shown.forEach((code, i) => {
+    const chip = document.createElement('span');
+    chip.textContent = code;
+    chip.style.setProperty('--i', Math.min(i, 20));
+    codesEl.appendChild(chip);
+  });
+  if(codes.length > MAX_SHOWN){
+    const more = document.createElement('span');
+    more.textContent = `+${codes.length - MAX_SHOWN} more (use Copy)`;
+    codesEl.appendChild(more);
+  }
+
+  const copyBtn = document.getElementById('tsCopyBtn');
+  copyBtn.textContent = 'Copy ticket codes';
+  copyBtn.onclick = async () => {
+    const text = `The Real Mc'Coy Raffle — ${name}\nReference: ${order.tx_ref}\nTickets: ${codes.join(', ')}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      copyBtn.textContent = 'Copied ✓';
+    } catch {
+      copyBtn.textContent = 'Copy failed — please write them down';
+    }
+  };
+  document.getElementById('tsDoneBtn').onclick = () => closeModal('ticketSuccess');
+
+  // Also keep a record on the page after the dialog is closed.
+  const list = codes.length <= 10 ? codes.join(', ') : `${codes[0]} … ${codes[codes.length - 1]}`;
+  showTicketStatus(result.simulated ? 'Test tickets issued ✓ (simulated payment)' : 'Tickets confirmed ✓',
+    `${codes.length} ticket(s) for ${name}: ${list}. Payment reference ${order.tx_ref} — please save it.`);
+
+  openModal('ticketSuccess');
+}
+
+// ---------- RAFFLE: SIMULATED CHECKOUT (TESTING ONLY) ----------
+// Stands in for the Flutterwave popup when PAYMENT_MODE is 'simulate'.
+// The server only accepts it while the SIMULATE_PAYMENTS secret is on.
+function openSimulatedCheckout(order, name, onClose){
+  const completeBtn = document.getElementById('simCompleteBtn');
+  const cancelBtn = document.getElementById('simCancelBtn');
+  document.getElementById('simAmount').textContent = '₦' + Number(order.amount).toLocaleString();
+  document.getElementById('simQty').textContent = order.quantity;
+  document.getElementById('simRef').textContent = order.tx_ref;
+  document.getElementById('simError').textContent = '';
+  setLoading(completeBtn, false);
+
+  let busy = false;
+  function close(){
+    if(busy) return;
+    closeModal('simCheckout');
+    completeBtn.onclick = cancelBtn.onclick = null;
+    onClose();
+  }
+  cancelBtn.onclick = close;
+  completeBtn.onclick = async () => {
+    busy = true;
+    setLoading(completeBtn, true);
+    try {
+      const result = await callRaffleFunction('simulate-ticket-payment', {tx_ref: order.tx_ref});
+      busy = false;
+      close();
+      showTicketSuccess(result, name, order);
+    } catch(err){
+      busy = false;
+      setLoading(completeBtn, false);
+      document.getElementById('simError').textContent = err.message;
+    }
+  };
+  openModal('simCheckout', close);
+}
+
+if(PAYMENT_MODE === 'simulate'){
+  document.getElementById('ticketPayBtn').textContent = 'Pay (simulated)';
+  document.getElementById('ticketTestNote').textContent =
+    'Simulation mode — no payment provider is used and no money is taken. Tickets issued this way are marked as test orders.';
 }

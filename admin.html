@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Raffle Admin &mdash; The Real Mc' Coy &amp; Partners</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand">
+      <img src="logo-nav.png" alt="The Real Mc' Coy &amp; Partners logo" class="brand-logo">
+      <div class="brand-text">
+        <span class="name">THE REAL MC' COY PARTNERS</span>
+        <span class="tag">raffle admin</span>
+      </div>
+    </a>
+    <div class="admin-user" id="adminUser" hidden>
+      <span id="adminEmail"></span>
+      <button class="btn btn-ghost admin-small-btn" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- LOGIN -->
+<section class="page" id="loginView" hidden>
+  <div class="wrap">
+    <div class="admin-login summary-box">
+      <h3>Admin sign in</h3>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Username or email</label>
+          <input type="text" id="loginEmail" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required>
+        </div>
+        <button class="btn btn-solid pay-btn" type="submit" id="loginBtn">Sign in</button>
+        <p class="booking-note admin-error" id="loginError"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section class="page" id="dashboardView" hidden>
+  <section style="padding-top:56px; padding-bottom:48px;">
+    <div class="wrap">
+      <div class="admin-head">
+        <div class="section-head" style="margin-bottom:0;">
+          <div class="kicker">10th Anniversary Raffle</div>
+          <h2>Ticket sales</h2>
+          <p id="lastUpdated">Loading&hellip;</p>
+        </div>
+        <button class="btn btn-ghost" id="refreshBtn">Refresh</button>
+      </div>
+
+      <div class="raffle-stats" id="summaryStats" style="margin-top:36px;">
+        <div class="raffle-stat"><b id="statTickets">&ndash;</b><span>Tickets sold</span></div>
+        <div class="raffle-stat"><b id="statRevenue">&ndash;</b><span>Revenue</span></div>
+        <div class="raffle-stat"><b id="statOrders">&ndash;</b><span>Paid orders</span></div>
+        <div class="raffle-stat"><b id="statBuyers">&ndash;</b><span>Unique buyers</span></div>
+        <div class="raffle-stat"><b id="statRemaining">&ndash;</b><span>Tickets remaining</span></div>
+        <div class="raffle-stat"><b id="statPending">&ndash;</b><span>Unpaid / abandoned orders</span></div>
+      </div>
+      <div class="admin-progress" aria-hidden="true"><span id="statProgress"></span></div>
+      <p class="booking-note" id="statProgressText"></p>
+    </div>
+  </section>
+
+  <section style="background:var(--paper-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:64px 0;">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:28px;">
+        <div class="kicker">Daily sales</div>
+        <h2>Last 30 days</h2>
+      </div>
+      <div class="raffle-table-wrap">
+        <table class="raffle-table">
+          <thead><tr><th>Date</th><th>Orders</th><th>Tickets</th><th>Revenue</th></tr></thead>
+          <tbody id="dailyBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:64px 0;">
+    <div class="wrap">
+      <div class="admin-head">
+        <div class="section-head" style="margin-bottom:0;">
+          <div class="kicker">Orders</div>
+          <h2>All ticket orders</h2>
+        </div>
+        <button class="btn btn-ghost" id="exportBtn">Export paid orders (CSV)</button>
+      </div>
+
+      <form class="admin-filters" id="filterForm">
+        <div class="form-group">
+          <label for="searchInput">Search name, email, phone, payment ref or ticket code</label>
+          <input type="search" id="searchInput" placeholder="e.g. RMC-0000042 or ada@email.com">
+        </div>
+        <div class="form-group">
+          <label for="statusFilter">Status</label>
+          <select id="statusFilter">
+            <option value="paid">Paid</option>
+            <option value="pending">Unpaid / abandoned</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+        <button class="btn btn-solid" type="submit">Search</button>
+      </form>
+
+      <div class="raffle-table-wrap">
+        <table class="raffle-table admin-orders">
+          <thead>
+            <tr><th>Date</th><th>Buyer</th><th>Contact</th><th>Tickets</th><th>Amount</th><th>Ticket codes</th><th>Status</th></tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+      <p class="booking-note" id="ordersNote"></p>
+      <button class="btn btn-ghost" id="loadMoreBtn" hidden style="margin-top:16px;">Load more</button>
+    </div>
+  </section>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

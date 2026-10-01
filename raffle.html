@@ -113,10 +113,11 @@
           <div class="sum-line"><span>Ticket price</span><span>&#8358;1,000</span></div>
           <div class="sum-line"><span>Quantity</span><span id="ticketSumQty">1</span></div>
           <div class="sum-line total"><span>Total</span><span id="ticketSumTotal">&#8358;1,000</span></div>
-          <button class="btn btn-solid pay-btn" onclick="buyRaffleTickets()">Pay with Flutterwave</button>
-          <p class="booking-note">Test mode &mdash; use card 5531 8866 5214 2950, expiry 09/32, CVV 564, PIN 3310, OTP 12345.</p>
+          <button class="btn btn-solid pay-btn" id="ticketPayBtn" onclick="buyRaffleTickets()">Pay with Flutterwave</button>
+          <p class="form-error" id="ticketFormError" role="alert"></p>
+          <p class="booking-note" id="ticketTestNote">Test mode &mdash; use card 5531 8866 5214 2950, expiry 09/32, CVV 564, PIN 3310, OTP 12345.</p>
           <div class="confirm-box" id="ticketConfirmBox">
-            <strong>Tickets confirmed &#10003;</strong>
+            <strong id="ticketConfirmTitle">Tickets confirmed &#10003;</strong>
             <p id="ticketConfirmText" style="margin-top:8px; color:var(--taupe);"></p>
           </div>
         </div>
@@ -206,8 +207,58 @@
   <div class="footer-bottom">&copy; 2026 The Real MccCoy Homes & Faith Ogenyi Consults. All rights reserved.</div>
 </footer>
 
+<!-- Step 1: review the order before any payment starts -->
+<div class="modal-overlay" id="orderConfirm" hidden>
+  <div class="modal-dialog summary-box" role="dialog" aria-modal="true" aria-labelledby="orderConfirmTitle">
+    <h3 id="orderConfirmTitle">Confirm your order</h3>
+    <p class="modal-lead">Please check your details. Tickets are non-refundable and non-transferable once paid.</p>
+    <div class="sum-line"><span>Name</span><span id="ocName"></span></div>
+    <div class="sum-line"><span>Email</span><span id="ocEmail"></span></div>
+    <div class="sum-line"><span>Phone</span><span id="ocPhone"></span></div>
+    <div class="sum-line"><span>Tickets</span><span id="ocQty"></span></div>
+    <div class="sum-line total"><span>Total</span><span id="ocTotal"></span></div>
+    <label class="confirm-check">
+      <input type="checkbox" id="ocAgree">
+      <span>I confirm I am 18 or older, not connected to the Promoter, and agree to the <a href="#raffleTC" onclick="closeModal('orderConfirm')">Terms &amp; Conditions</a>.</span>
+    </label>
+    <button class="btn btn-solid pay-btn" id="ocConfirmBtn" disabled>Confirm &amp; pay</button>
+    <button class="btn btn-ghost pay-btn sim-cancel" id="ocCancelBtn">Edit details</button>
+    <p class="modal-error" id="ocError" role="alert"></p>
+  </div>
+</div>
+
+<!-- Simulated checkout (testing only, see PAYMENT_MODE in js/config.js) -->
+<div class="modal-overlay" id="simCheckout" hidden>
+  <div class="modal-dialog summary-box" role="dialog" aria-modal="true" aria-labelledby="simTitle">
+    <span class="badge-demo">Simulated payment &mdash; no money is taken</span>
+    <h3 id="simTitle">Complete your payment</h3>
+    <div class="sum-line"><span>Tickets</span><span id="simQty"></span></div>
+    <div class="sum-line"><span>Reference</span><span id="simRef" class="sim-ref"></span></div>
+    <div class="sum-line total"><span>Amount</span><span id="simAmount"></span></div>
+    <button class="btn btn-solid pay-btn" id="simCompleteBtn">Complete payment</button>
+    <button class="btn btn-ghost pay-btn sim-cancel" id="simCancelBtn">Cancel</button>
+    <p class="modal-error" id="simError" role="alert"></p>
+  </div>
+</div>
+
+<!-- Step 3: payment confirmed, tickets issued -->
+<div class="modal-overlay" id="ticketSuccess" hidden>
+  <div class="modal-dialog summary-box modal-success" role="dialog" aria-modal="true" aria-labelledby="tsTitle">
+    <svg class="success-mark" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26"/><path d="M17 29 l7 7 l15 -16"/></svg>
+    <h3 id="tsTitle">Payment confirmed</h3>
+    <p class="modal-lead" id="tsLead"></p>
+    <div class="ticket-codes" id="tsCodes"></div>
+    <div class="sum-line"><span>Amount paid</span><span id="tsAmount"></span></div>
+    <div class="sum-line"><span>Reference</span><span id="tsRef" class="sim-ref"></span></div>
+    <p class="booking-note">Save your ticket codes and reference &mdash; you&rsquo;ll need them, with a valid ID, to claim a prize. Draw dates are announced publicly in advance.</p>
+    <button class="btn btn-solid pay-btn" id="tsCopyBtn">Copy ticket codes</button>
+    <button class="btn btn-ghost pay-btn sim-cancel" id="tsDoneBtn" data-autofocus>Done</button>
+  </div>
+</div>
+
 <script src="js/main.js"></script>
 <script src="https://checkout.flutterwave.com/v3.js"></script>
+<script src="js/config.js"></script>
 <script src="js/raffle.js"></script>
 </body>
 </html>

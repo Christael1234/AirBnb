@@ -90,10 +90,11 @@
         <div class="sum-line"><span id="sumRateLabel">Rate</span><span id="sumRate">&#8358;35,000</span></div>
         <div class="sum-line"><span id="sumNightsLabel">Nights</span><span id="sumNights">1</span></div>
         <div class="sum-line total"><span>Total</span><span id="sumTotal">&#8358;35,000</span></div>
-        <button class="btn btn-solid pay-btn" onclick="payNow()">Pay &amp; confirm booking</button>
+        <button class="btn btn-solid pay-btn" id="bookingPayBtn" onclick="payNow()">Pay &amp; confirm booking</button>
+        <p class="form-error" id="bookingFormError" role="alert"></p>
         <p class="booking-note">You'll be charged nothing until you complete payment on the next screen. Test mode &mdash; use card 4084 0840 8408 4081, any future date, CVV 408, PIN 0000, OTP 123456.</p>
         <div class="confirm-box" id="confirmBox">
-          <strong>Booking confirmed &#10003;</strong>
+          <strong>Payment received &#10003;</strong>
           <p id="confirmText" style="margin-top:8px; color:var(--taupe);"></p>
         </div>
       </div>
@@ -148,6 +149,35 @@
   </div>
   <div class="footer-bottom">&copy; 2026 The Real MccCoy Homes & Faith Ogenyi Consults. All rights reserved.</div>
 </footer>
+
+<!-- Step 1: review the booking before payment -->
+<div class="modal-overlay" id="bookingConfirm" hidden>
+  <div class="modal-dialog summary-box" role="dialog" aria-modal="true" aria-labelledby="bcTitle">
+    <h3 id="bcTitle">Confirm your booking</h3>
+    <p class="modal-lead">Please check the details before you pay.</p>
+    <div class="sum-line"><span>Space</span><span id="bcUnit"></span></div>
+    <div class="sum-line"><span id="bcDatesLabel">Dates</span><span id="bcDates"></span></div>
+    <div class="sum-line"><span id="bcUnitsLabel">Nights</span><span id="bcUnits"></span></div>
+    <div class="sum-line"><span>Name</span><span id="bcName"></span></div>
+    <div class="sum-line"><span>Email</span><span id="bcEmail"></span></div>
+    <div class="sum-line total"><span>Total</span><span id="bcTotal"></span></div>
+    <button class="btn btn-solid pay-btn" id="bcConfirmBtn">Confirm &amp; pay</button>
+    <button class="btn btn-ghost pay-btn sim-cancel" id="bcCancelBtn">Edit details</button>
+  </div>
+</div>
+
+<!-- Step 3: payment received -->
+<div class="modal-overlay" id="bookingSuccess" hidden>
+  <div class="modal-dialog summary-box modal-success" role="dialog" aria-modal="true" aria-labelledby="bsTitle">
+    <svg class="success-mark" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26"/><path d="M17 29 l7 7 l15 -16"/></svg>
+    <h3 id="bsTitle">Payment received</h3>
+    <p class="modal-lead" id="bsLead"></p>
+    <div class="sum-line"><span>Amount paid</span><span id="bsAmount"></span></div>
+    <div class="sum-line"><span>Reference</span><span id="bsRef" class="sim-ref"></span></div>
+    <p class="booking-note">Keep this reference &mdash; quote it if you contact us about your booking.</p>
+    <button class="btn btn-solid pay-btn" id="bsDoneBtn" data-autofocus>Done</button>
+  </div>
+</div>
 
 <script src="js/main.js"></script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
