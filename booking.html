@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book &amp; Pay &mdash; The Real Mc' Coy &amp; Partners</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand">
+      <img src="logo-nav.png" alt="The Real Mc' Coy &amp; Partners logo" class="brand-logo">
+      <div class="brand-text">
+        <span class="name">THE REAL MC' COY PARTNERS</span>
+        <span class="tag">the trail blazers</span>
+      </div>
+    </a>
+    <nav class="links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="rooms.html">Rooms</a>
+      <a href="office.html">Office Space</a>
+      <a href="rooftop.html">Rooftop</a>
+      <a href="raffle.html">10th Anniversary Raffle</a>
+      <a href="booking.html" class="nav-cta active">Book Now</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn">&#9776;</button>
+  </div>
+</header>
+
+<main>
+<section class="page active" id="page-booking">
+  <div class="wrap">
+    <div class="section-head" style="margin-top:64px;">
+      <div class="kicker">Book &amp; Pay</div>
+      <h2>Reserve your space</h2>
+      <p>Fill in your details, review the total, and pay securely to confirm.</p>
+    </div>
+    <span class="badge-demo">Payments are in test mode &mdash; no real charge will be made</span>
+
+    <div class="booking-wrap">
+      <div>
+        <div class="form-group">
+          <label for="unitSelect">What are you booking?</label>
+          <select id="unitSelect" onchange="onUnitChange()">
+            <option value="Room 01|35000|night">Room 01 &mdash; &#8358;35,000/night</option>
+            <option value="Room 02|35000|night">Room 02 &mdash; &#8358;35,000/night</option>
+            <option value="Room 03|38000|night">Room 03 &mdash; &#8358;38,000/night</option>
+            <option value="Room 04|38000|night">Room 04 &mdash; &#8358;38,000/night</option>
+            <option value="Office Suite (3 rooms)|450000|month">Office Suite (3 rooms) &mdash; &#8358;450,000/month</option>
+            <option value="Rooftop Event Space|250000|event">Rooftop Event Space &mdash; &#8358;250,000/event</option>
+          </select>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label for="checkIn">Check-in / Event date</label>
+            <input type="date" id="checkIn" onchange="updateSummary()">
+          </div>
+          <div class="form-group" id="checkOutGroup">
+            <label for="checkOut">Check-out</label>
+            <input type="date" id="checkOut" onchange="updateSummary()">
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label for="fullName">Full name</label>
+            <input type="text" id="fullName" placeholder="Your full name">
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone number</label>
+            <input type="tel" id="phone" placeholder="080...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="you@email.com">
+        </div>
+        <div class="form-group">
+          <label for="notes">Notes (optional)</label>
+          <textarea id="notes" rows="3" placeholder="Anything we should know?"></textarea>
+        </div>
+      </div>
+
+      <div class="summary-box">
+        <h3 id="sumUnit">Room 01</h3>
+        <div class="sum-line"><span id="sumRateLabel">Rate</span><span id="sumRate">&#8358;35,000</span></div>
+        <div class="sum-line"><span id="sumNightsLabel">Nights</span><span id="sumNights">1</span></div>
+        <div class="sum-line total"><span>Total</span><span id="sumTotal">&#8358;35,000</span></div>
+        <button class="btn btn-solid pay-btn" onclick="payNow()">Pay &amp; confirm booking</button>
+        <p class="booking-note">You'll be charged nothing until you complete payment on the next screen. Test mode &mdash; use card 4084 0840 8408 4081, any future date, CVV 408, PIN 0000, OTP 123456.</p>
+        <div class="confirm-box" id="confirmBox">
+          <strong>Booking confirmed &#10003;</strong>
+          <p id="confirmText" style="margin-top:8px; color:var(--taupe);"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="cta-band">
+  <div class="wrap">
+    <h2>Rooftop for a party. A room for the weekend. An office for the month.</h2>
+    <a class="btn btn-solid" href="booking.html">Check availability</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="f-brand">The Real Mc' Coy &amp; Partners</div>
+      <p>A finished, well-kept place to stay, work, or host &mdash; rooms, office space, and rooftop, all bookable online.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="rooms.html">Rooms</a></li>
+        <li><a href="office.html">Office Space</a></li>
+        <li><a href="rooftop.html">Rooftop</a></li>
+        <li><a href="raffle.html">10th Anniversary Raffle</a></li>
+        <li><a href="booking.html">Book &amp; Pay</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li>Abuja, FCT, Nigeria</li>
+        <li>+234 911 363 7444</li>
+        <li>+234 803 470 0369</li>
+        <li>therealmccoypartners@gmail.com</li>
+      </ul>
+      <div class="social-icons">
+        <a href="https://www.instagram.com/ene_faith?stkn=MXBiNzF5dWlqNGRtYw==" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://www.facebook.com/share/1LsGqe57oi/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 8.5h2V5h-2.3C12.6 5 11 6.6 11 8.7V11H9v3.5h2V21h3v-6.5h2.4l.6-3.5h-3V9c0-.6.3-.9.9-.9Z"/></svg>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="7.5" y1="10" x2="7.5" y2="17"/><circle cx="7.5" cy="6.8" r="0.4" fill="currentColor"/><path d="M11.5 17v-4.2c0-1.6 1-2.6 2.4-2.6s2.1 1 2.1 2.6V17"/><line x1="11.5" y1="10" x2="11.5" y2="17"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">&copy; 2026 The Real MccCoy Homes & Faith Ogenyi Consults. All rights reserved.</div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="js/booking.js"></script>
+</body>
+</html>

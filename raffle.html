@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10th Anniversary Raffle &mdash; The Real Mc' Coy &amp; Partners</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand">
+      <img src="logo-nav.png" alt="The Real Mc' Coy &amp; Partners logo" class="brand-logo">
+      <div class="brand-text">
+        <span class="name">THE REAL MC' COY PARTNERS</span>
+        <span class="tag">the trail blazers</span>
+      </div>
+    </a>
+    <nav class="links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="rooms.html">Rooms</a>
+      <a href="office.html">Office Space</a>
+      <a href="rooftop.html">Rooftop</a>
+      <a href="raffle.html" class="active">10th Anniversary Raffle</a>
+      <a href="booking.html" class="nav-cta">Book Now</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn">&#9776;</button>
+  </div>
+</header>
+
+<main>
+<section class="page active" id="page-raffle">
+  <section style="padding-top:64px; padding-bottom:56px;">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">10th Anniversary &middot; Promotional Raffle Draw</div>
+        <h2>The Real Mc&rsquo;Coy Promotional Raffle Draw</h2>
+        <p>Organised by The Real Mc&rsquo;Coy Ltd to celebrate ten years in business. A regulated promotional lottery conducted under the supervision of the Federal Capital Territory Lottery Regulatory Office (FCT-LRO). Participants purchase tickets for the chance to win valuable prizes &mdash; outcomes are based solely on chance.</p>
+      </div>
+
+      <div class="raffle-stats">
+        <div class="raffle-stat"><b>&#8358;1,000</b><span>Ticket price</span></div>
+        <div class="raffle-stat"><b>1,000,000</b><span>Tickets available</span></div>
+        <div class="raffle-stat"><b>&#8358;1,000,000,000</b><span>Gross pool (if fully subscribed)</span></div>
+        <div class="raffle-stat"><b>&#8358;10,000,000</b><span>Total prize pool</span></div>
+        <div class="raffle-stat"><b>100</b><span>Total winners</span></div>
+        <div class="raffle-stat"><b>1 year</b><span>Draw period</span></div>
+      </div>
+      <p class="booking-note" style="margin-top:16px; margin-bottom:0;">Draws are held in randomly selected months across the one-year Draw Period; exact draw dates are announced publicly and approved by FCT-LRO in advance.</p>
+    </div>
+  </section>
+
+  <section style="background:var(--paper-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:36px;">
+        <div class="kicker">Prize List</div>
+        <h2>Approximate Abuja market values</h2>
+        <p>The full &#8358;10,000,000 prize pool is allocated exclusively to the prizes below. Regulatory and administrative fees (&#8358;2,400,000) are kept separate and are not deducted from the prize pool.</p>
+      </div>
+      <div class="raffle-table-wrap">
+        <table class="raffle-table">
+          <thead>
+            <tr><th>Prize</th><th>Qty</th><th>Unit Value</th><th>Total Value</th></tr>
+          </thead>
+          <tbody id="raffleTableBody"></tbody>
+          <tfoot>
+            <tr><td>Prize Total</td><td>100</td><td>&ndash;</td><td>&asymp; &#8358;10,000,000</td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="booking-note">All values are approximate Abuja market prices. Minor adjustments may be made to stay within the &#8358;10,000,000 prize pool while maintaining 100 winners.</p>
+    </div>
+  </section>
+
+  <section id="buy-tickets">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">Enter the raffle</div>
+        <h2>Buy your tickets</h2>
+        <p>Choose how many tickets you want, enter your details, and pay securely with Flutterwave. Your tickets are serialised and logged the moment payment is confirmed.</p>
+      </div>
+      <span class="badge-demo">Payments are in test mode &mdash; no real charge will be made</span>
+
+      <div class="booking-wrap" style="margin-top:24px;">
+        <div>
+          <div class="row-2">
+            <div class="form-group">
+              <label for="ticketQty">Number of tickets</label>
+              <input type="number" id="ticketQty" min="1" max="1000" value="1" onchange="updateTicketSummary()" oninput="updateTicketSummary()">
+            </div>
+            <div class="form-group">
+              <label for="ticketPhone">Phone number</label>
+              <input type="tel" id="ticketPhone" placeholder="080...">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="ticketName">Full name</label>
+            <input type="text" id="ticketName" placeholder="Your full name">
+          </div>
+          <div class="form-group">
+            <label for="ticketEmail">Email address</label>
+            <input type="email" id="ticketEmail" placeholder="you@email.com">
+          </div>
+          <p class="booking-note">One entry per ticket. Tickets are non-refundable and non-transferable once payment is confirmed. You must be 18 years or older to participate.</p>
+        </div>
+
+        <div class="summary-box">
+          <h3>Ticket order</h3>
+          <div class="sum-line"><span>Ticket price</span><span>&#8358;1,000</span></div>
+          <div class="sum-line"><span>Quantity</span><span id="ticketSumQty">1</span></div>
+          <div class="sum-line total"><span>Total</span><span id="ticketSumTotal">&#8358;1,000</span></div>
+          <button class="btn btn-solid pay-btn" onclick="buyRaffleTickets()">Pay with Flutterwave</button>
+          <p class="booking-note">Test mode &mdash; use card 5531 8866 5214 2950, expiry 09/32, CVV 564, PIN 3310, OTP 12345.</p>
+          <div class="confirm-box" id="ticketConfirmBox">
+            <strong>Tickets confirmed &#10003;</strong>
+            <p id="ticketConfirmText" style="margin-top:8px; color:var(--taupe);"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature" style="margin-top:56px;">
+        <div class="feature-body" style="padding:44px 44px;">
+          <ul class="feature-list">
+            <li><span>Eligibility</span><span>18 years or older</span></li>
+            <li><span>Ticket price</span><span>&#8358;1,000 each</span></li>
+            <li><span>Draw supervision</span><span>Independent auditor &amp; FCT-LRO</span></li>
+            <li><span>Prize claim window</span><span>180 days from announcement</span></li>
+          </ul>
+        </div>
+        <div class="feature-body" style="background:var(--paper-2); padding:44px 44px;">
+          <div class="kicker">Regulatory &amp; administrative fees</div>
+          <p style="margin-bottom:18px;">Kept separate from the &#8358;10,000,000 prize pool.</p>
+          <ul class="feature-list">
+            <li><span>Application fee</span><span>&#8358;500,000</span></li>
+            <li><span>Admin fee</span><span>&#8358;400,000</span></li>
+            <li><span>Permit fee</span><span>&#8358;300,000</span></li>
+            <li><span>Good causes</span><span>&#8358;700,000</span></li>
+            <li><span>Due diligence</span><span>&#8358;500,000</span></li>
+          </ul>
+          <div class="feature-price" style="margin-top:16px;">&#8358;2,400,000 <small>total fees</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="background:var(--paper-2); border-top:1px solid var(--line);">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:36px;">
+        <div class="kicker">Full Terms &amp; Conditions</div>
+        <h2>Raffle rules, eligibility &amp; process</h2>
+      </div>
+      <div class="raffle-tc" id="raffleTC"></div>
+    </div>
+  </section>
+</section>
+</main>
+
+<div class="cta-band">
+  <div class="wrap">
+    <h2>Rooftop for a party. A room for the weekend. An office for the month.</h2>
+    <a class="btn btn-solid" href="booking.html">Check availability</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="f-brand">The Real Mc' Coy &amp; Partners</div>
+      <p>A finished, well-kept place to stay, work, or host &mdash; rooms, office space, and rooftop, all bookable online.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="rooms.html">Rooms</a></li>
+        <li><a href="office.html">Office Space</a></li>
+        <li><a href="rooftop.html">Rooftop</a></li>
+        <li><a href="raffle.html">10th Anniversary Raffle</a></li>
+        <li><a href="booking.html">Book &amp; Pay</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li>Abuja, FCT, Nigeria</li>
+        <li>+234 911 363 7444</li>
+        <li>+234 803 470 0369</li>
+        <li>therealmccoypartners@gmail.com</li>
+      </ul>
+      <div class="social-icons">
+        <a href="https://www.instagram.com/ene_faith?stkn=MXBiNzF5dWlqNGRtYw==" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://www.facebook.com/share/1LsGqe57oi/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 8.5h2V5h-2.3C12.6 5 11 6.6 11 8.7V11H9v3.5h2V21h3v-6.5h2.4l.6-3.5h-3V9c0-.6.3-.9.9-.9Z"/></svg>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="7.5" y1="10" x2="7.5" y2="17"/><circle cx="7.5" cy="6.8" r="0.4" fill="currentColor"/><path d="M11.5 17v-4.2c0-1.6 1-2.6 2.4-2.6s2.1 1 2.1 2.6V17"/><line x1="11.5" y1="10" x2="11.5" y2="17"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">&copy; 2026 The Real MccCoy Homes & Faith Ogenyi Consults. All rights reserved.</div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="https://checkout.flutterwave.com/v3.js"></script>
+<script src="js/raffle.js"></script>
+</body>
+</html>
