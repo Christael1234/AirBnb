@@ -1,3 +1,10 @@
+// ---------- CLEAN URLS ----------
+// GitHub Pages serves /raffle for raffle.html; tidy old .html links in the address bar.
+if(/\.html$/.test(location.pathname)){
+  const clean = location.pathname.replace(/(index)?\.html$/, '');
+  history.replaceState(null, '', clean + location.search + location.hash);
+}
+
 // ---------- MOBILE MENU ----------
 document.getElementById('menuBtn').addEventListener('click', ()=>{
   document.getElementById('navLinks').classList.toggle('mobile-open');

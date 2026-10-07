@@ -1,5 +1,5 @@
 // ---------- BOOKING LOGIC ----------
-// Pre-select the unit passed from other pages, e.g. booking.html?unit=Room%2001
+// Pre-select the unit passed from other pages, e.g. /booking?unit=Room%2001
 function preselectUnit(){
   const name = new URLSearchParams(window.location.search).get('unit');
   if(!name) return;

@@ -1,3 +1,10 @@
+// ---------- CLEAN URLS ----------
+// GitHub Pages serves /raffle for raffle.html; tidy old .html links in the address bar.
+if(/\.html$/.test(location.pathname)){
+  const clean = location.pathname.replace(/(index)?\.html$/, '');
+  history.replaceState(null, '', clean + location.search + location.hash);
+}
+
 // ---------- RAFFLE ADMIN DASHBOARD ----------
 // Reads ticket sales from Supabase. Access is enforced by row level security
 // in the database (only users listed in public.admins can read anything);

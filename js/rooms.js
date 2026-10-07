@@ -24,7 +24,7 @@ function renderRooms(){
         <p class="desc">${r.desc}</p>
         <div class="unit-foot">
           <div class="price">&#8358;${r.rate.toLocaleString()} <small>/ night</small></div>
-          <a class="book-link" href="booking.html?unit=${encodeURIComponent(r.name)}">Book &rarr;</a>
+          <a class="book-link" href="/booking?unit=${encodeURIComponent(r.name)}">Book &rarr;</a>
         </div>
       </div>
     </div>
