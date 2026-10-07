@@ -33,23 +33,40 @@ export const db = createClient(
   { auth: { persistSession: false } },
 );
 
+// Records why a payment couldn't be confirmed, so it shows on the dashboard.
+async function recordVerifyError(txRef: string | undefined, message: string) {
+  if (!txRef) return;
+  await db.from("ticket_orders")
+    .update({ verify_error: message.slice(0, 500), verify_checked_at: new Date().toISOString() })
+    .eq("tx_ref", txRef)
+    .eq("status", "pending");
+}
+
 // Asks Flutterwave directly whether a transaction succeeded, then issues the
 // tickets. Never trust the browser's word that a payment went through.
-export async function verifyAndIssueTickets(transactionId: string | number, expectedTxRef?: string) {
-  const res = await fetch(
-    `https://api.flutterwave.com/v3/transactions/${encodeURIComponent(String(transactionId))}/verify`,
-    { headers: { Authorization: `Bearer ${Deno.env.get("FLW_SECRET_KEY")}` } },
-  );
+// Looks the payment up by Flutterwave transaction ID when we have one, or by
+// our own order reference (tx_ref) otherwise, e.g. when rechecking from the
+// admin dashboard.
+export async function verifyAndIssueTickets(transactionId: string | number | null | undefined, expectedTxRef?: string) {
+  const url = transactionId
+    ? `https://api.flutterwave.com/v3/transactions/${encodeURIComponent(String(transactionId))}/verify`
+    : `https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=${encodeURIComponent(String(expectedTxRef))}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${Deno.env.get("FLW_SECRET_KEY")}` } });
   const body = await res.json().catch(() => null);
   const tx = body?.data;
 
   if (!res.ok || body?.status !== "success" || !tx) {
+    const reason = `Flutterwave ${res.status}: ${body?.message ?? "no response body"}`;
+    console.error("flutterwave verify failed", expectedTxRef, transactionId, reason);
+    await recordVerifyError(expectedTxRef, reason);
     throw new HttpError(402, "We couldn't verify this payment with Flutterwave.");
   }
   if (tx.status !== "successful") {
+    await recordVerifyError(expectedTxRef, `Payment status: ${tx.status}`);
     throw new HttpError(402, `Payment was not successful (status: ${tx.status}).`);
   }
   if (tx.currency !== "NGN") {
+    await recordVerifyError(expectedTxRef, `Currency: ${tx.currency}`);
     throw new HttpError(402, "Payment was not made in Naira.");
   }
   if (expectedTxRef && tx.tx_ref !== expectedTxRef) {
@@ -63,6 +80,7 @@ export async function verifyAndIssueTickets(transactionId: string | number, expe
   });
   if (error) {
     console.error("confirm_ticket_order failed", tx.tx_ref, error);
+    await recordVerifyError(tx.tx_ref, `Issuing tickets failed: ${error.message}`);
     throw new HttpError(409, "Your payment was received but we couldn't issue tickets. Please contact us with your payment reference.");
   }
 

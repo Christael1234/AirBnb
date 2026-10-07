@@ -114,6 +114,46 @@ function ticketSummary(tickets){
   return `${codes[0]} … ${codes[codes.length - 1]}`;
 }
 
+// Unpaid orders get a "Check payment" button: asks Flutterwave (via the
+// verify-ticket-payment function) whether this order was actually paid, and
+// issues the tickets + email if so.
+function pendingActions(o){
+  if(o.status !== 'pending' || o.simulated) return '';
+  const err = o.verify_error ? `<div class="admin-sub admin-email-failed" title="${esc(o.verify_error)}">${esc(o.verify_error)}</div>` : '';
+  return `${err}<button class="btn btn-ghost admin-check-btn" data-txref="${esc(o.tx_ref)}">Check payment</button>`;
+}
+
+async function checkPayment(btn){
+  btn.classList.add('loading');
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/verify-ticket-payment`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY},
+      body: JSON.stringify({tx_ref: btn.dataset.txref}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if(res.ok){
+      btn.replaceWith(Object.assign(document.createElement('div'), {className: 'admin-sub', textContent: `Paid ✓ — issued ${data.tickets.join(', ')}`}));
+      loadSummary().catch(showError);
+    } else {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      btn.textContent = 'Check again';
+      btn.title = data.error || 'Not paid';
+      btn.insertAdjacentElement('beforebegin', Object.assign(document.createElement('div'), {className: 'admin-sub', textContent: data.error || 'Not paid yet.'}));
+    }
+  } catch(err){
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    showError(err);
+  }
+}
+$('ordersBody').addEventListener('click', e => {
+  const btn = e.target.closest('.admin-check-btn');
+  if(btn) checkPayment(btn);
+});
+
 function emailStatus(o){
   if(o.status !== 'paid') return '';
   if(o.email_sent_at) return `<div class="admin-sub">Emailed ${esc(lagosTime(o.email_sent_at))}</div>`;
@@ -125,7 +165,7 @@ function emailStatus(o){
 // so returning one from an async function would run it immediately.
 async function buildOrdersQuery(){
   let q = sb.from('ticket_orders')
-    .select('id, tx_ref, buyer_name, buyer_email, buyer_phone, quantity, amount_ngn, amount_paid_ngn, status, simulated, email_sent_at, email_error, created_at, paid_at, tickets(ticket_code, serial)')
+    .select('id, tx_ref, buyer_name, buyer_email, buyer_phone, quantity, amount_ngn, amount_paid_ngn, status, simulated, email_sent_at, email_error, verify_error, created_at, paid_at, tickets(ticket_code, serial)')
     .order('created_at', {ascending: false})
     .order('serial', {referencedTable: 'tickets', ascending: true});
 
@@ -161,7 +201,7 @@ async function loadOrders(reset){
       <td>${num(o.quantity)}</td>
       <td>${naira(o.amount_paid_ngn ?? o.amount_ngn)}</td>
       <td class="admin-codes">${esc(ticketSummary(o.tickets))}</td>
-      <td><span class="admin-status admin-status-${esc(o.status)}">${o.status === 'paid' ? 'Paid' : 'Unpaid'}</span>${o.simulated ? ' <span class="admin-status admin-status-test">Test</span>' : ''}${emailStatus(o)}</td>
+      <td><span class="admin-status admin-status-${esc(o.status)}">${o.status === 'paid' ? 'Paid' : 'Unpaid'}</span>${o.simulated ? ' <span class="admin-status admin-status-test">Test</span>' : ''}${emailStatus(o)}${pendingActions(o)}</td>
     </tr>`).join(''));
 
   ordersOffset += data.length;

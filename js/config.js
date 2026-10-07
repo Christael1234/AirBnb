@@ -3,7 +3,7 @@
 // Never put the Supabase service role key or Flutterwave secret key here.
 const SUPABASE_URL = 'https://kriopjrwolpcigivrmqr.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_FT6A_l3zbbJtcp-7h3ToJA_1VgmmtX0';
-const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK-fbca9286ca56202d870188324b970749-X';
+const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK-b33ddf652fcd221da2c334db1109cec7-X';
 
 // 'simulate' = fake checkout with a "complete payment" button, no money taken
 //              (also needs the SIMULATE_PAYMENTS=true Supabase secret).
