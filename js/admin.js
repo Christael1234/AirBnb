@@ -107,11 +107,18 @@ function ticketSummary(tickets){
   return `${codes[0]} … ${codes[codes.length - 1]}`;
 }
 
+function emailStatus(o){
+  if(o.status !== 'paid') return '';
+  if(o.email_sent_at) return `<div class="admin-sub">Emailed ${esc(lagosTime(o.email_sent_at))}</div>`;
+  if(o.email_error) return `<div class="admin-sub admin-email-failed" title="${esc(o.email_error)}">Email failed</div>`;
+  return '<div class="admin-sub">Not emailed</div>';
+}
+
 // Returns {query} rather than the query itself: Supabase queries are thenable,
 // so returning one from an async function would run it immediately.
 async function buildOrdersQuery(){
   let q = sb.from('ticket_orders')
-    .select('id, tx_ref, buyer_name, buyer_email, buyer_phone, quantity, amount_ngn, amount_paid_ngn, status, simulated, created_at, paid_at, tickets(ticket_code, serial)')
+    .select('id, tx_ref, buyer_name, buyer_email, buyer_phone, quantity, amount_ngn, amount_paid_ngn, status, simulated, email_sent_at, email_error, created_at, paid_at, tickets(ticket_code, serial)')
     .order('created_at', {ascending: false})
     .order('serial', {referencedTable: 'tickets', ascending: true});
 
@@ -147,7 +154,7 @@ async function loadOrders(reset){
       <td>${num(o.quantity)}</td>
       <td>${naira(o.amount_paid_ngn ?? o.amount_ngn)}</td>
       <td class="admin-codes">${esc(ticketSummary(o.tickets))}</td>
-      <td><span class="admin-status admin-status-${esc(o.status)}">${o.status === 'paid' ? 'Paid' : 'Unpaid'}</span>${o.simulated ? ' <span class="admin-status admin-status-test">Test</span>' : ''}</td>
+      <td><span class="admin-status admin-status-${esc(o.status)}">${o.status === 'paid' ? 'Paid' : 'Unpaid'}</span>${o.simulated ? ' <span class="admin-status admin-status-test">Test</span>' : ''}${emailStatus(o)}</td>
     </tr>`).join(''));
 
   ordersOffset += data.length;

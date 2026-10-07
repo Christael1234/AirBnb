@@ -1,7 +1,7 @@
 // Marks a pending order as paid WITHOUT taking a payment, for testing.
 // Disabled unless the SIMULATE_PAYMENTS secret is "true" — unset it before
 // going live, or anyone could issue themselves free tickets.
-import { corsHeaders, db, errorResponse, HttpError, json } from "../_shared/raffle.ts";
+import { corsHeaders, db, errorResponse, HttpError, json, sendTicketEmail } from "../_shared/raffle.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -36,11 +36,9 @@ Deno.serve(async (req) => {
       throw new HttpError(409, "We couldn't issue tickets for this order.");
     }
 
-    return json({
-      tx_ref,
-      simulated: true,
-      tickets: (data as { ticket_code: string }[]).map((r) => r.ticket_code),
-    });
+    const tickets = (data as { ticket_code: string }[]).map((r) => r.ticket_code);
+    await sendTicketEmail(String(tx_ref), tickets);
+    return json({ tx_ref, simulated: true, tickets });
   } catch (err) {
     return errorResponse(err);
   }

@@ -93,6 +93,33 @@ signed in as `<username>@therealmccoy.admin`, so the default admin is:
 The dashboard is at `/admin.html`. It isn't linked from the site and is marked
 `noindex`, but the real protection is the database rules, not the hidden URL.
 
+## Ticket confirmation emails (Brevo)
+
+When tickets are issued (browser confirmation, webhook, or simulated
+payment), the buyer is emailed their ticket codes, once per order. The
+dashboard shows "Emailed", "Email failed" (hover for the reason), or
+"Not emailed" for each paid order. A failed email never blocks the sale.
+
+1. In Brevo: profile menu → SMTP & API → API Keys → Generate a new API key
+   (it starts with `xkeysib-`).
+2. Add a sender: Senders, Domains & Dedicated IPs → Senders → Add a sender,
+   and confirm it from the verification email Brevo sends.
+3. Save the settings in Supabase:
+
+   ```sh
+   supabase secrets set BREVO_API_KEY=xkeysib-xxxxxxxx
+   supabase secrets set EMAIL_FROM_ADDRESS=tickets@yourdomain.com
+   supabase secrets set EMAIL_FROM_NAME="The Real Mc'Coy Raffle"   # optional
+   ```
+
+For reliable delivery, send from an address on a domain you own and
+authenticate that domain in Brevo (Senders, Domains & Dedicated IPs →
+Domains). A Gmail sender works for testing, but inbox providers are more
+likely to mark it as spam.
+
+Without `BREVO_API_KEY` and `EMAIL_FROM_ADDRESS`, sales work exactly as
+before and no emails are sent.
+
 ## Testing without Flutterwave (simulated payments)
 
 With `PAYMENT_MODE = 'simulate'` in `js/config.js`, "Pay" opens a fake

@@ -229,9 +229,10 @@ async function startTicketPayment({name, email, phone, qty}){
     return;
   }
 
-  if(typeof FlutterwaveCheckout === 'undefined'){
+  if(!(await loadFlutterwave())){
     done();
-    formError('ticketFormError', null, `Payment couldn't load. Check your connection and try again (order ${order.tx_ref}).`);
+    formError('ticketFormError', null,
+      "Flutterwave's payment window couldn't load. If you use an ad blocker or Brave Shields, turn it off for this site, check your connection, then try again.");
     return;
   }
   FlutterwaveCheckout({
@@ -266,6 +267,20 @@ async function startTicketPayment({name, email, phone, qty}){
       }
     },
     onclose: done,
+  });
+}
+
+// Flutterwave's script is in raffle.html, but on a flaky connection (or with
+// a blocker) it may not have loaded. Try once more on demand before giving up.
+function loadFlutterwave(){
+  if(typeof FlutterwaveCheckout !== 'undefined') return Promise.resolve(true);
+  return new Promise(resolve => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.flutterwave.com/v3.js';
+    const timer = setTimeout(() => resolve(false), 15000);
+    script.onload = () => { clearTimeout(timer); resolve(typeof FlutterwaveCheckout !== 'undefined'); };
+    script.onerror = () => { clearTimeout(timer); resolve(false); };
+    document.head.appendChild(script);
   });
 }
 
